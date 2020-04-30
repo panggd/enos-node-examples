@@ -9,7 +9,6 @@ const clientOptions = {
   brokerUrl: process.env.DEV_BROKER_URL,
   secureMode: SECURE_MODE.VIA_DEVICE_SECRET,
   productKey: process.env.PRODUCT_KEY,
-  productSecret: process.env.PRODUCT_SECRET,
   deviceKey: process.env.DEVICE_KEY,
   deviceSecret: process.env.DEVICE_SECRET,
   mqttOptions: {
@@ -21,6 +20,7 @@ const clientOptions = {
 
 initConnection = async () => {
   try {
+    console.log(clientOptions);
     const client = new DeviceClient(clientOptions);
 
     // listen to 'connect' event
@@ -33,9 +33,25 @@ initConnection = async () => {
       console.log('connection closed');
     });
 
-    const deviceSecret = await client.connect();
-    console.log(`device secret: ${deviceSecret}`);
-    await client.close();
+    await client.connect();
+    let count = 0;
+    let stop = 200;
+    let interval = setInterval(async () => {
+      if (count > stop) {
+        clearInterval(interval);
+        await client.close();
+      } else {
+        await client.deviceData
+        .postMeasurepoint({
+          point: {
+            measurepoints: {
+              activePw: count
+            }
+          }
+        });
+      }      
+      count++;
+    }, 1000);
   } catch (err) {
     console.error(err, err.stack);
   }

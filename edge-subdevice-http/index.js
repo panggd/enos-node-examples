@@ -6,6 +6,7 @@ const EDGE_GATEWAY_URL=`http://${process.env.EDGE_GATEWAY_IP}:${process.env.EDGE
 
 try {
   setInterval(async () => {
+    let temp = Math.floor(Math.random() * 101);
     const res = await axios({
       method: "POST",
       headers: {
@@ -14,10 +15,10 @@ try {
       url: EDGE_GATEWAY_URL,
       data: {
         deviceID: process.env.SUBDEVICE_KEY,
-        temp: Math.floor(Math.random() * 101)
+        temp: temp
       }
     });
-    console.log(res.data);
+    console.log(temp, res.data);
   }, 1000);
 } catch(err) {
   console.error(err, err.stack);
